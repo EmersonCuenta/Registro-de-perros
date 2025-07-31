@@ -47,10 +47,12 @@ public class AuthController {
         return usuarioService.findByEmail(email)
             .flatMap(u -> Mono.<Map<String, String>>error(new RuntimeException("El correo ya está registrado")))
             .switchIfEmpty(
-                usuarioService.save(new Usuario() {{
-                    setEmail(email);
-                    setPassword(password);
-                }})
+                Mono.defer(() -> {
+                    Usuario usuario = new Usuario();
+                    usuario.setEmail(email);
+                    usuario.setPassword(password);
+                    return usuarioService.save(usuario);
+                })
                 .map(usuario -> {
                     Map<String, String> response = new HashMap<>();
                     response.put("token", "fake-jwt-token-" + usuario.getId());

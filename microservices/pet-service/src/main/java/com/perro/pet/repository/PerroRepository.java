@@ -12,5 +12,4 @@ import reactor.core.publisher.Mono;
 public interface PerroRepository extends ReactiveCrudRepository<Perro, Long> {
     Flux<Perro> findByUsuarioId(Long usuarioId);
     Mono<Perro> findByIdAndUsuarioId(Long id, Long usuarioId);
-    Mono<Void> deleteByIdAndUsuarioId(Long id, Long usuarioId);
 }

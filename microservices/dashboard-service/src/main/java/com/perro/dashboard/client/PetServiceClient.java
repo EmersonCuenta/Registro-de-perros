@@ -1,16 +1,25 @@
 package com.perro.dashboard.client;
 
-import java.util.List;
-
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.perro.dashboard.model.Perro;
 
-@FeignClient(name = "pet-service")
-public interface PetServiceClient {
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+
+@Component
+@RequiredArgsConstructor
+public class PetServiceClient {
     
-    @GetMapping("/api/perros")
-    List<Perro> listarPerros(@RequestHeader("Authorization") String authHeader);
+    private final WebClient.Builder webClientBuilder;
+    
+    public Flux<Perro> listarPerros(String authHeader) {
+        return webClientBuilder.build()
+                .get()
+                .uri("http://pet-service/api/perros")
+                .header("Authorization", authHeader)
+                .retrieve()
+                .bodyToFlux(Perro.class);
+    }
 }

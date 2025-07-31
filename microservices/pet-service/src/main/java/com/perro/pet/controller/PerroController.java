@@ -30,6 +30,12 @@ public class PerroController {
         return service.listarPorUsuario(usuarioId);
     }
 
+    @GetMapping("/{id}")
+    public Mono<Perro> obtenerPorId(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
+        Long usuarioId = extraerUsuarioId(authHeader);
+        return service.obtenerPorId(id, usuarioId);
+    }
+
     @PostMapping
     public Mono<Perro> registrar(@RequestBody Perro perro, @RequestHeader("Authorization") String authHeader) {
         Long usuarioId = extraerUsuarioId(authHeader);

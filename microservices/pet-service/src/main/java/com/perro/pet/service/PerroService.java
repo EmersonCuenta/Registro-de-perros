@@ -33,7 +33,13 @@ public class PerroService {
     }
     
     public Mono<Void> eliminarPorUsuario(Long id, Long usuarioId) {
-        return repository.deleteByIdAndUsuarioId(id, usuarioId);
+        return repository.findByIdAndUsuarioId(id, usuarioId)
+                .flatMap(perro -> repository.deleteById(id))
+                .then();
+    }
+    
+    public Mono<Perro> obtenerPorId(Long id, Long usuarioId) {
+        return repository.findByIdAndUsuarioId(id, usuarioId);
     }
     
     public Mono<Void> eliminar(Long id) {
