@@ -1,3 +1,4 @@
+import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import PublicDashboard from "./pages/PublicDashboard";
@@ -52,8 +53,10 @@ function AppContent() {
 
 export default function App() {
   return (
+    <BrowserRouter>
       <AuthProvider>
         <AppContent />
       </AuthProvider>
+    </BrowserRouter>
   );
 }
