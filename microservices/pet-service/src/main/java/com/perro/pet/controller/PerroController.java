@@ -30,12 +30,6 @@ public class PerroController {
         return service.listarPorUsuario(usuarioId);
     }
 
-    @GetMapping("/{id}")
-    public Mono<Perro> obtenerPorId(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
-        Long usuarioId = extraerUsuarioId(authHeader);
-        return service.obtenerPorId(id, usuarioId);
-    }
-
     @PostMapping
     public Mono<Perro> registrar(@RequestBody Perro perro, @RequestHeader("Authorization") String authHeader) {
         Long usuarioId = extraerUsuarioId(authHeader);
@@ -49,10 +43,15 @@ public class PerroController {
         return service.actualizar(id, usuarioId, perro);
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/{id}")
     public Mono<Void> eliminar(@PathVariable Long id, @RequestHeader("Authorization") String authHeader) {
         Long usuarioId = extraerUsuarioId(authHeader);
         return service.eliminarPorUsuario(id, usuarioId);
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<Void> eliminar(@PathVariable Long id) {
+        return service.eliminar(id);
     }
     
     private Long extraerUsuarioId(String authHeader) {

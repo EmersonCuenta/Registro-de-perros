@@ -1,24 +1,24 @@
 package com.perro.auth.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.perro.auth.model.Usuario;
 import com.perro.auth.repository.UsuarioRepository;
 
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Service
-@RequiredArgsConstructor
 public class UsuarioService {
-    
-    private final UsuarioRepository repository;
-    
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     public Mono<Usuario> findByEmail(String email) {
-        return repository.findByEmail(email);
+        return usuarioRepository.findByEmail(email);
     }
-    
+
     public Mono<Usuario> save(Usuario usuario) {
-        return repository.save(usuario);
+        return usuarioRepository.save(usuario);
     }
 }
