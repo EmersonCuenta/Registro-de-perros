@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.perro.dashboard.dto.EstadisticasDashboard;
-import com.perro.dashboard.model.Perro;
+import com.perro.dashboard.dto.EstadisticasDashboard.Perro;
 import com.perro.dashboard.service.DashboardService;
 
 import lombok.RequiredArgsConstructor;

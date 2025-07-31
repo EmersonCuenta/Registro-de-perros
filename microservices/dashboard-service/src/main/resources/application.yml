@@ -4,6 +4,14 @@ server:
 spring:
   application:
     name: dashboard-service
+  cloud:
+    discovery:
+      enabled: true
+      service-id: dashboard-service
+
+logging:
+  level:
+    com.perro.dashboard: DEBUG
 
 eureka:
   client:
