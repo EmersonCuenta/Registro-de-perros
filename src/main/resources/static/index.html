@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Perros Registrados</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
+    <!-- Google Maps API - Comentado hasta configurar API key -->
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script> -->
     <style>
         * {
             margin: 0;
@@ -253,16 +254,25 @@
         async function cargarEstadisticas() {
             try {
                 const response = await fetch('/api/dashboard/estadisticas');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
-                mostrarTotalPerros(data.totalPerros);
-                crearGraficoRaza(data.perrosPorRaza);
-                crearGraficoEdad(data.perrosPorEdad);
-                actualizarMapa(data.perrosPorUbicacion);
+                if (!data) {
+                    throw new Error('No se recibieron datos del servidor');
+                }
+                
+                mostrarTotalPerros(data.totalPerros || 0);
+                crearGraficoRaza(data.perrosPorRaza || []);
+                crearGraficoEdad(data.perrosPorEdad || []);
+                actualizarMapa(data.perrosPorUbicacion || []);
                 
             } catch (error) {
                 console.error('Error al cargar estadísticas:', error);
-                mostrarError('Error al cargar las estadísticas');
+                mostrarError('Error al cargar las estadísticas. Verifica que el servidor esté ejecutándose.');
             }
         }
 
@@ -275,6 +285,13 @@
             
             if (razaChart) {
                 razaChart.destroy();
+            }
+
+            // Verificar si hay datos
+            if (!datosRaza || datosRaza.length === 0) {
+                const container = ctx.canvas.parentElement;
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No hay datos de razas disponibles</div>';
+                return;
             }
 
             razaChart = new Chart(ctx, {
@@ -322,6 +339,13 @@
                 edadChart.destroy();
             }
 
+            // Verificar si hay datos
+            if (!datosEdad || datosEdad.length === 0) {
+                const container = ctx.canvas.parentElement;
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No hay datos de edad disponibles</div>';
+                return;
+            }
+
             edadChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -357,6 +381,24 @@
 
         function inicializarMapa() {
             const mapElement = document.getElementById('map');
+            
+            // Verificar si Google Maps está disponible
+            if (typeof google === 'undefined' || !google.maps) {
+                mapElement.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f8f9fa; border-radius: 10px;">
+                        <div style="text-align: center; color: #666;">
+                            <h3>🗺️ Mapa de Densidad Canina</h3>
+                            <p>Para ver el mapa interactivo, configura la API key de Google Maps</p>
+                            <p style="font-size: 0.9rem; margin-top: 10px;">
+                                <strong>Ubicaciones con perros registrados:</strong><br>
+                                <span id="ubicacionesList"></span>
+                            </p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
             map = new google.maps.Map(mapElement, {
                 center: { lat: -12.0464, lng: -77.0428 }, // Lima, Perú
                 zoom: 12,
@@ -371,6 +413,20 @@
         }
 
         function actualizarMapa(datosUbicacion) {
+            // Si Google Maps no está disponible, mostrar lista de ubicaciones
+            if (typeof google === 'undefined' || !google.maps) {
+                const ubicacionesList = document.getElementById('ubicacionesList');
+                if (ubicacionesList) {
+                    const ubicacionesHTML = datosUbicacion.map(ubicacion => 
+                        `<span style="display: inline-block; margin: 2px 5px; padding: 4px 8px; background: #667eea; color: white; border-radius: 4px; font-size: 0.8rem;">
+                            ${ubicacion.ubicacion}: ${ubicacion.cantidad} perros
+                        </span>`
+                    ).join('');
+                    ubicacionesList.innerHTML = ubicacionesHTML;
+                }
+                return;
+            }
+
             // Limpiar marcadores existentes
             if (window.markers) {
                 window.markers.forEach(marker => marker.setMap(null));
